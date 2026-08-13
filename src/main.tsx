@@ -1,39 +1,1045 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { LayoutDashboard, Mic2, MessagesSquare, Clock3, BarChart3, UserRound, ArrowRight, Play, ChevronDown, Sun, Search, LogOut, Sparkles, CheckCircle2, Clock, Flame, Trophy, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Mic2,
+  MessagesSquare,
+  Clock3,
+  BarChart3,
+  UserRound,
+  ArrowRight,
+  Play,
+  ChevronDown,
+  Sun,
+  Search,
+  LogOut,
+  Sparkles,
+  CheckCircle2,
+  Clock,
+  Flame,
+  Trophy,
+  Menu,
+  X,
+} from "lucide-react";
 import "./styles.css";
 
-type View = "dashboard" | "practice" | "debate" | "history" | "analytics" | "profile";
-type Session = { id:string; type:"Speaking"|"Debate"; topic:string; date:string; score:number; duration:string; color:"purple"|"orange"; transcript?:string };
-const seed:Session[] = [
-  {id:"seed-1",type:"Speaking",topic:"Should AI replace traditional classroom teaching?",date:"Today, 10:24 AM",score:82,duration:"02:14",color:"purple"},
-  {id:"seed-2",type:"Debate",topic:"Is remote learning better than classroom learning?",date:"Yesterday, 5:40 PM",score:76,duration:"04:08",color:"orange"},
-  {id:"seed-3",type:"Speaking",topic:"The role of technology in sustainable cities",date:"May 18, 9:12 AM",score:79,duration:"01:48",color:"purple"},
+type View =
+  | "dashboard"
+  | "practice"
+  | "debate"
+  | "history"
+  | "analytics"
+  | "profile";
+type Session = {
+  id: string;
+  type: "Speaking" | "Debate";
+  topic: string;
+  date: string;
+  score: number;
+  duration: string;
+  color: "purple" | "orange";
+  transcript?: string;
+};
+const seed: Session[] = [
+  {
+    id: "seed-1",
+    type: "Speaking",
+    topic: "Should AI replace traditional classroom teaching?",
+    date: "Today, 10:24 AM",
+    score: 82,
+    duration: "02:14",
+    color: "purple",
+  },
+  {
+    id: "seed-2",
+    type: "Debate",
+    topic: "Is remote learning better than classroom learning?",
+    date: "Yesterday, 5:40 PM",
+    score: 76,
+    duration: "04:08",
+    color: "orange",
+  },
+  {
+    id: "seed-3",
+    type: "Speaking",
+    topic: "The role of technology in sustainable cities",
+    date: "May 18, 9:12 AM",
+    score: 79,
+    duration: "01:48",
+    color: "purple",
+  },
 ];
-const nav:[View,string,any][] = [["dashboard","Dashboard",LayoutDashboard],["practice","Practice",Mic2],["debate","AI Debate",MessagesSquare],["history","History",Clock3],["analytics","Analytics",BarChart3]];
-const readSessions=():Session[]=>{try{return JSON.parse(localStorage.getItem("speakwell_sessions")||"null")||seed}catch{return seed}};
-const saveSessions=(items:Session[])=>localStorage.setItem("speakwell_sessions",JSON.stringify(items));
-const now=()=>new Date().toLocaleString("en-IN",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+const nav: [View, string, any][] = [
+  ["dashboard", "Dashboard", LayoutDashboard],
+  ["practice", "Practice", Mic2],
+  ["debate", "AI Debate", MessagesSquare],
+  ["history", "History", Clock3],
+  ["analytics", "Analytics", BarChart3],
+];
+const readSessions = (): Session[] => {
+  try {
+    return (
+      JSON.parse(localStorage.getItem("speakwell_sessions") || "null") || seed
+    );
+  } catch {
+    return seed;
+  }
+};
+const saveSessions = (items: Session[]) =>
+  localStorage.setItem("speakwell_sessions", JSON.stringify(items));
+const now = () =>
+  new Date().toLocaleString("en-IN", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
-function App(){
- const [view,setView]=useState<View>("dashboard"), [user,setUser]=useState(()=>localStorage.getItem("speakwell_user")||"Jigar"), [auth,setAuth]=useState(false), [menu,setMenu]=useState(false), [dark,setDark]=useState(false), [topic,setTopic]=useState(""), [sessions,setSessions]=useState<Session[]>(readSessions), [toast,setToast]=useState("");
- const notify=(m:string)=>{setToast(m);window.setTimeout(()=>setToast(""),2400)};
- const enter=(name:string)=>{localStorage.setItem("speakwell_user",name);setUser(name);setAuth(false);notify("Welcome to SpeakWell")};
- if(!user)return <><Landing onEnter={()=>setAuth(true)}/>{auth&&<Auth onDone={enter} onClose={()=>setAuth(false)}/>}</>;
- const addSession=(s:Session)=>{const next=[s,...sessions];setSessions(next);saveSessions(next)};
- const act=(v:View)=>{setView(v);setMenu(false)};
- return <div className={dark?"app dark":"app"}><aside className={menu?"sidebar open":"sidebar"}><Brand/><div className="workspace"><div className="avatar">{user.slice(0,1).toUpperCase()}</div><div><b>{user}'s workspace</b><small>Student account</small></div><ChevronDown size={15}/></div><nav>{nav.map(([id,label,Icon])=><button className={view===id?"active":""} onClick={()=>act(id)} key={id}><Icon size={18}/>{label}{id==="practice"&&<i>New</i>}</button>)}</nav><div className="upgrade"><Sparkles size={18}/><b>Unlock your potential</b><p>Keep your speaking streak alive and level up.</p><button onClick={()=>act("analytics")}>View progress <ArrowRight size={14}/></button></div><button className="profile-nav" onClick={()=>act("profile")}><div className="avatar small">{user.slice(0,2).toUpperCase()}</div><span>{user}<small>View profile</small></span><ChevronDown size={14}/></button></aside><main><header><button className="mobile-menu" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button><div><span className="eyebrow">{view==="dashboard"?"Your personal practice space":"SpeakWell workspace"}</span><h1>{view==="dashboard"?`Good morning, ${user}`:viewTitle(view)}</h1></div><div className="header-actions"><button className="icon-btn" onClick={()=>setDark(!dark)}><Sun size={18}/></button><button className="icon-btn"><Search size={18}/></button><div className="avatar">{user.slice(0,2).toUpperCase()}</div><button className="icon-btn" title="Sign out" onClick={()=>{localStorage.removeItem("speakwell_user");setUser("")}}><LogOut size={17}/></button></div></header>{view==="dashboard"&&<Dashboard act={act} sessions={sessions} user={user}/>} {view==="practice"&&<Practice topic={topic} setTopic={setTopic} notify={notify} onSave={addSession}/>} {view==="debate"&&<Debate notify={notify} onSave={addSession}/>} {view==="history"&&<History sessions={sessions}/>} {view==="analytics"&&<Analytics sessions={sessions}/>} {view==="profile"&&<Profile user={user}/>}</main>{toast&&<div className="toast"><CheckCircle2 size={18}/>{toast}</div>}</div>
+function App() {
+  const [view, setView] = useState<View>("dashboard"),
+    [user, setUser] = useState(
+      () => localStorage.getItem("speakwell_user") || "Jigar",
+    ),
+    [auth, setAuth] = useState(false),
+    [menu, setMenu] = useState(false),
+    [dark, setDark] = useState(false),
+    [topic, setTopic] = useState(""),
+    [sessions, setSessions] = useState<Session[]>(readSessions),
+    [toast, setToast] = useState("");
+  const notify = (m: string) => {
+    setToast(m);
+    window.setTimeout(() => setToast(""), 2400);
+  };
+  const enter = (name: string) => {
+    localStorage.setItem("speakwell_user", name);
+    setUser(name);
+    setAuth(false);
+    notify("Welcome to SpeakWell");
+  };
+  if (!user)
+    return (
+      <>
+        <Landing onEnter={() => setAuth(true)} />
+        {auth && <Auth onDone={enter} onClose={() => setAuth(false)} />}
+      </>
+    );
+  const addSession = (s: Session) => {
+    const next = [s, ...sessions];
+    setSessions(next);
+    saveSessions(next);
+  };
+  const act = (v: View) => {
+    setView(v);
+    setMenu(false);
+  };
+  return (
+    <div className={dark ? "app dark" : "app"}>
+      <aside className={menu ? "sidebar open" : "sidebar"}>
+        <Brand />
+        <div className="workspace">
+          <div className="avatar">{user.slice(0, 1).toUpperCase()}</div>
+          <div>
+            <b>{user}'s workspace</b>
+            <small>Student account</small>
+          </div>
+          <ChevronDown size={15} />
+        </div>
+        <nav>
+          {nav.map(([id, label, Icon]) => (
+            <button
+              className={view === id ? "active" : ""}
+              onClick={() => act(id)}
+              key={id}
+            >
+              <Icon size={18} />
+              {label}
+              {id === "practice" && <i>New</i>}
+            </button>
+          ))}
+        </nav>
+        <div className="upgrade">
+          <Sparkles size={18} />
+          <b>Unlock your potential</b>
+          <p>Keep your speaking streak alive and level up.</p>
+          <button onClick={() => act("analytics")}>
+            View progress <ArrowRight size={14} />
+          </button>
+        </div>
+        <button className="profile-nav" onClick={() => act("profile")}>
+          <div className="avatar small">{user.slice(0, 2).toUpperCase()}</div>
+          <span>
+            {user}
+            <small>View profile</small>
+          </span>
+          <ChevronDown size={14} />
+        </button>
+      </aside>
+      <main>
+        <header>
+          <button className="mobile-menu" onClick={() => setMenu(!menu)}>
+            {menu ? <X /> : <Menu />}
+          </button>
+          <div>
+            <span className="eyebrow">
+              {view === "dashboard"
+                ? "Your personal practice space"
+                : "SpeakWell workspace"}
+            </span>
+            <h1>
+              {view === "dashboard" ? `Good morning, ${user}` : viewTitle(view)}
+            </h1>
+          </div>
+          <div className="header-actions">
+            <button className="icon-btn" onClick={() => setDark(!dark)}>
+              <Sun size={18} />
+            </button>
+            <button className="icon-btn">
+              <Search size={18} />
+            </button>
+            <div className="avatar">{user.slice(0, 2).toUpperCase()}</div>
+            <button
+              className="icon-btn"
+              title="Sign out"
+              onClick={() => {
+                localStorage.removeItem("speakwell_user");
+                setUser("");
+              }}
+            >
+              <LogOut size={17} />
+            </button>
+          </div>
+        </header>
+        {view === "dashboard" && (
+          <Dashboard act={act} sessions={sessions} user={user} />
+        )}{" "}
+        {view === "practice" && (
+          <Practice
+            topic={topic}
+            setTopic={setTopic}
+            notify={notify}
+            onSave={addSession}
+          />
+        )}{" "}
+        {view === "debate" && <Debate notify={notify} onSave={addSession} />}{" "}
+        {view === "history" && <History sessions={sessions} />}{" "}
+        {view === "analytics" && <Analytics sessions={sessions} />}{" "}
+        {view === "profile" && <Profile user={user} />}
+      </main>
+      {toast && (
+        <div className="toast">
+          <CheckCircle2 size={18} />
+          {toast}
+        </div>
+      )}
+    </div>
+  );
 }
-function Brand(){return <div className="brand"><div className="brand-mark"><Mic2 size={19}/></div><span>Speak<span>Well</span></span></div>}
-function viewTitle(v:View){return ({practice:"Speaking practice",debate:"AI debate arena",history:"Session history",analytics:"Your analytics",profile:"Profile settings"} as any)[v]}
-function Auth({onDone,onClose}:{onDone:(name:string)=>void;onClose:()=>void}){const [mode,setMode]=useState<"login"|"signup">("signup"),[name,setName]=useState("Jigar"),[email,setEmail]=useState(""),[password,setPassword]=useState("");return <div className="auth-backdrop"><form className="auth-card" onSubmit={e=>{e.preventDefault();if(!email||password.length<4)return;onDone(name||email.split("@")[0])}}><button type="button" className="auth-close" onClick={onClose}><X/></button><Brand/><span className="eyebrow">{mode==="signup"?"CREATE YOUR ACCOUNT":"WELCOME BACK"}</span><h2>{mode==="signup"?"Start finding your voice.":"Pick up your practice."}</h2>{mode==="signup"&&<input value={name} onChange={e=>setName(e.target.value)} placeholder="Full name"/>}<input value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" type="email" required/><input value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password (4+ characters)" type="password" required/><button className="primary" type="submit">{mode==="signup"?"Create account":"Log in"}<ArrowRight size={15}/></button><p className="auth-switch">{mode==="signup"?"Already have an account?":"New to SpeakWell?"} <button type="button" onClick={()=>setMode(mode==="signup"?"login":"signup")}>{mode==="signup"?"Log in":"Create one"}</button></p></form></div>}
-function Landing({onEnter}:{onEnter:()=>void}){return <div className="landing"><nav className="landing-nav"><Brand/><div className="landing-links"><a href="#features">How it works</a><a href="#features">For students</a><button className="login-btn" onClick={onEnter}>Log in</button><button className="primary" onClick={onEnter}>Get started <ArrowRight size={15}/></button></div></nav><div className="landing-hero"><div className="landing-copy"><span className="pill purple-pill">THE CONFIDENCE PRACTICE LAB</span><h2>Build confidence.<br/><em>Speak better.</em><br/>Debate smarter.</h2><p>SpeakWell gives you a safe space to practice out loud, challenge your thinking, and see yourself improve — one session at a time.</p><div className="landing-actions"><button className="primary" onClick={onEnter}>Start practicing <ArrowRight size={16}/></button><button className="watch" onClick={onEnter}><Play size={15} fill="currentColor"/> See how it works</button></div><div className="social-proof"><div className="proof-avatars"><i>AS</i><i>RP</i><i>MK</i></div><span><b>Loved by 2,000+ learners</b><small>Building their voice every day</small></span></div></div><div className="landing-visual"><div className="visual-ring"/><div className="visual-card"><span className="eyebrow">TODAY'S INSIGHT</span><h3>Clarity is a<br/><em>superpower.</em></h3><div className="visual-wave">{Array.from({length:9},(_,i)=><i key={i}/>)}</div><small>82 overall score <b>↗ 6%</b></small></div><div className="float-tag tag-one"><Sparkles size={15}/> AI feedback</div><div className="float-tag tag-two"><Mic2 size={15}/> Speak freely</div></div></div><section className="features" id="features"><div><span className="eyebrow">ONE SPACE TO GROW</span><h3>Practice what matters.</h3></div><div className="feature-grid"><div><Mic2/><b>Speaking practice</b><p>Find your voice with thoughtful prompts and a little room to breathe.</p></div><div><MessagesSquare/><b>Debate arena</b><p>Sharpen your thinking by seeing every side of the conversation.</p></div><div><BarChart3/><b>See your progress</b><p>Turn every attempt into insight with feedback that moves you forward.</p></div></div></section></div>}
-function Stat({label,value,note,icon}:{label:string,value:string,note:string,icon:any}){return <div className="stat"><div className="stat-top"><span>{label}</span><div className="stat-icon">{icon}</div></div><strong>{value}</strong><small>{note}</small></div>}
-function Dashboard({act,sessions,user}:{act:(v:View)=>void;sessions:Session[];user:string}){const avg=Math.round(sessions.reduce((a,s)=>a+s.score,0)/sessions.length);return <div className="content"><section className="hero-card"><div><span className="pill purple-pill">YOUR MOMENTUM <Flame size={13}/></span><h2>Small practice.<br/><em>Big confidence.</em></h2><p>{user}, you're building a powerful speaking habit. Keep your streak going today.</p><button className="primary" onClick={()=>act("practice")}>Start a practice <ArrowRight size={16}/></button></div><div className="hero-art"><div className="orb orb1"/><div className="orb orb2"/><span>✦</span></div></section><div className="stats"><Stat label="Overall score" value={String(avg)} note="Based on saved sessions" icon={<Trophy/>}/><Stat label="Practice sessions" value={String(sessions.length)} note="Saved on this device" icon={<Mic2/>}/><Stat label="Current streak" value="5 days" note="Best: 12 days" icon={<Flame/>}/></div><div className="grid-main"><section className="panel chart-panel"><div className="section-title"><div><span className="eyebrow">PERFORMANCE</span><h3>Your speaking journey</h3></div><span className="trend">↗ active practice</span></div><div className="chart"><div className="y-labels"><span>100</span><span>80</span><span>60</span><span>40</span></div><svg viewBox="0 0 600 180" preserveAspectRatio="none"><defs><linearGradient id="fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#7066f5" stopOpacity=".2"/><stop offset="1" stopColor="#7066f5" stopOpacity="0"/></linearGradient></defs><path d="M0 137 C45 132 57 141 91 117 S147 126 182 99 S225 110 260 87 S314 93 350 68 S400 75 440 48 S486 74 520 38 S567 50 600 20 L600 180 L0 180Z" fill="url(#fill)"/><path d="M0 137 C45 132 57 141 91 117 S147 126 182 99 S225 110 260 87 S314 93 350 68 S400 75 440 48 S486 74 520 38 S567 50 600 20" fill="none" stroke="#7066f5" strokeWidth="3"/></svg></div><div className="x-labels"><span>May 1</span><span>May 8</span><span>May 15</span><span>Today</span></div></section><section className="panel quick-panel"><div className="section-title"><div><span className="eyebrow">GET STARTED</span><h3>What will you practice?</h3></div></div><button className="action-card speak" onClick={()=>act("practice")}><div className="action-icon"><Mic2/></div><div><b>Speaking practice</b><p>Find your voice, one topic at a time.</p></div><ArrowRight/></button><button className="action-card debate" onClick={()=>act("debate")}><div className="action-icon"><MessagesSquare/></div><div><b>Debate arena</b><p>Sharpen your thinking in rounds.</p></div><ArrowRight/></button></section></div><section className="panel recent"><div className="section-title"><div><span className="eyebrow">RECENT ACTIVITY</span><h3>Pick up where you left off</h3></div><button className="text-btn" onClick={()=>act("history")}>View all <ArrowRight size={14}/></button></div><div className="session-list">{sessions.slice(0,3).map(s=><Session s={s} key={s.id}/>)}</div></section></div>}
-function Session({s}:{s:Session}){return <div className="session"><div className={"session-type "+s.color}>{s.type==="Speaking"?<Mic2 size={17}/>:<MessagesSquare size={17}/>}</div><div className="session-info"><b>{s.topic}</b><small>{s.date} · {s.duration}</small></div><strong className="score">{s.score}</strong><span className="score-label">score</span><ArrowRight className="row-arrow" size={16}/></div>}
-function Practice({topic,setTopic,notify,onSave}:{topic:string;setTopic:(v:string)=>void;notify:(v:string)=>void;onSave:(s:Session)=>void}){const [started,setStarted]=useState(false),[text,setText]=useState(""),[seconds,setSeconds]=useState(0);useEffect(()=>{if(!started)return;const id=window.setInterval(()=>setSeconds(s=>s+1),1000);return()=>clearInterval(id)},[started]);const finish=()=>{if(!text.trim()){notify("Add a transcript before submitting");return}const score=Math.min(98,68+Math.min(25,Math.round(text.trim().split(/\s+/).length/5)));onSave({id:crypto.randomUUID(),type:"Speaking",topic:topic||"Open speaking practice",date:now(),score,duration:`${String(Math.floor(seconds/60)).padStart(2,"0")}:${String(seconds%60).padStart(2,"0")}`,color:"purple",transcript:text});setStarted(false);setText("");setSeconds(0);notify(`Session saved — score ${score}`)};return <div className="content practice-layout"><section className="panel practice-card"><div className="practice-top"><div><span className="eyebrow">SPEAKING LAB · NO AI REQUIRED</span><h2>Find your voice.</h2><p>Choose a topic, start the timer, and type what you would say. Your practice is saved locally.</p></div><div className="practice-number">01</div></div><div className="filters"><label>Category<select><option>Technology</option><option>Education</option><option>Society</option><option>Environment</option><option>Career</option></select></label><label>Difficulty<select><option>Intermediate</option><option>Beginner</option><option>Advanced</option></select></label><button className="secondary" onClick={()=>{setTopic("Should artificial intelligence replace traditional classroom teaching?");notify("Topic ready for your practice")}}><Sparkles size={16}/> Use sample topic</button></div>{topic&&<div className="topic-box"><span className="topic-label">YOUR TOPIC</span><h3>{topic}</h3><span className="difficulty">INTERMEDIATE</span></div>}<div className="record-box">{!started?<><div className="mic-circle"><Mic2/></div><h3>Ready when you are</h3><p>This phase uses typed transcript input; microphone integration is intentionally left out.</p><button className="primary" onClick={()=>{if(!topic)setTopic("Is technology making us more connected or more alone?");setStarted(true)}}><Play size={16} fill="currentColor"/> Start timer</button></>:<><div className="recording"><span/>Practice timer <b>{String(Math.floor(seconds/60)).padStart(2,"0")}:{String(seconds%60).padStart(2,"0")}</b></div><textarea autoFocus placeholder="Type the response you would speak..." value={text} onChange={e=>setText(e.target.value)}/><small className="word-counter">{text.trim()?text.trim().split(/\s+/).length:0} words</small><button className="primary" onClick={finish}>Stop & save session <ArrowRight size={16}/></button></>}</div></section><aside className="practice-aside"><div className="tip-card"><Sparkles size={18}/><h3>A little tip</h3><p>Don't aim for perfect. Aim for clear. Take a breath before you begin and let your ideas land.</p></div><div className="panel mini-panel"><span className="eyebrow">THIS SESSION</span><div><b>2 min</b><small>suggested duration</small></div><div><b>∞</b><small>retakes available</small></div></div></aside></div>}
-function Debate({notify,onSave}:{notify:(v:string)=>void;onSave:(s:Session)=>void}){const [position,setPosition]=useState<"FOR"|"AGAINST"|null>(null),[round,setRound]=useState(1),[response,setResponse]=useState("");const topic="Should AI be allowed to replace human teachers?";const next=()=>{if(!response.trim()){notify("Write a response before continuing");return}if(round<3){setRound(round+1);setResponse("");notify("Round advanced — develop your next point")}else{onSave({id:crypto.randomUUID(),type:"Debate",topic,date:now(),score:Math.min(95,70+Math.round(response.length/20)),duration:"03:00",color:"orange",transcript:response});notify("Debate saved — evaluation complete");setPosition(null);setRound(1);setResponse("")}};return <div className="content debate-layout"><section className="panel debate-main"><div className="debate-header"><div><span className="eyebrow">DEBATE ARENA · ROUND {round} OF 3</span><h2>{topic}</h2></div><div className="rounds"><i className={round>=1?"on":""}/><i className={round>=2?"on":""}/><i className={round>=3?"on":""}/></div></div>{!position?<div className="position-select"><h3>Choose your position</h3><p>There are no wrong answers. Choose the side you want to defend.</p><div><button onClick={()=>setPosition("FOR")}><span>FOR</span><b>AI can expand access and personalize learning.</b><ArrowRight/></button><button onClick={()=>setPosition("AGAINST")}><span>AGAINST</span><b>Human connection is at the heart of teaching.</b><ArrowRight/></button></div></div>:<><div className="position-pill">YOU ARE ARGUING <b>{position}</b></div><div className="argument ai"><div className="bubble-icon"><Sparkles/></div><div><span>OPENING PROMPT</span><p>Make your strongest case in one clear paragraph. Support your position with a practical example.</p></div></div><div className="argument student"><div className="bubble-icon"><UserRound/></div><div><span>YOUR RESPONSE</span><textarea placeholder="Type your argument..." value={response} onChange={e=>setResponse(e.target.value)}/><button className="secondary" onClick={next}><MessagesSquare size={16}/> {round<3?"Submit response":"End debate & save"}</button></div></div></>}</section><aside className="debate-side"><div className="tip-card dark-tip"><MessagesSquare size={18}/><h3>Debate coach</h3><p>Make one clear claim, support it with an example, then anticipate the other side.</p></div><div className="panel score-card"><span className="eyebrow">DEBATE ENERGY</span><strong>{position?`Round ${round} is live.`:"Choose a position to begin."}</strong><div className="energy"><span style={{width:`${position?round*33:0}%`}}/></div><small>Three short rounds. Your work is saved after the final response.</small></div></aside></div>}
-function History({sessions}:{sessions:Session[]}){return <div className="content"><div className="history-hero"><div><span className="eyebrow">YOUR LIBRARY</span><h2>Every attempt<br/><em>counts.</em></h2></div><div className="history-count"><strong>{sessions.length}</strong><span>total sessions</span></div></div><section className="panel recent history-panel"><div className="section-title"><h3>All sessions</h3><span className="trend">Saved locally on this device</span></div><div className="session-list">{sessions.map(s=><Session s={s} key={s.id}/>)}</div></section></div>}
-function Analytics({sessions}:{sessions:Session[]}){const avg=Math.round(sessions.reduce((a,s)=>a+s.score,0)/sessions.length),best=Math.max(...sessions.map(s=>s.score));return <div className="content"><div className="analytics-grid"><Stat label="Average score" value={String(avg)} note="Across saved sessions" icon={<BarChart3/>}/><Stat label="Best score" value={String(best)} note="Your personal best" icon={<Trophy/>}/><Stat label="Total sessions" value={String(sessions.length)} note="Practice + debate" icon={<Clock3/>}/></div><section className="panel chart-panel big-chart"><div className="section-title"><div><span className="eyebrow">SCORE TREND</span><h3>You're getting stronger</h3></div><span className="trend">↗ live from your sessions</span></div><div className="chart"><div className="y-labels"><span>100</span><span>80</span><span>60</span><span>40</span></div><svg viewBox="0 0 800 210" preserveAspectRatio="none"><path d="M0 160 C65 154 91 173 137 138 S213 149 260 117 S330 126 385 110 S450 119 510 83 S570 94 625 67 S702 71 800 28" fill="none" stroke="#7066f5" strokeWidth="4"/><path d="M0 160 C65 154 91 173 137 138 S213 149 260 117 S330 126 385 110 S450 119 510 83 S570 94 625 67 S702 71 800 28 L800 210 L0 210Z" fill="url(#fill)"/></svg></div><div className="x-labels"><span>Start</span><span>Practice</span><span>Recent</span><span>Today</span></div></section></div>}
-function Profile({user}:{user:string}){return <div className="content"><section className="panel profile-card"><div className="profile-avatar">{user.slice(0,2).toUpperCase()}</div><h2>{user}</h2><p>Building confidence, one conversation at a time.</p><button className="secondary"><UserRound size={16}/> Profile is ready</button></section></div>}
-createRoot(document.getElementById("root")!).render(<App/>);
+function Brand() {
+  return (
+    <div className="brand">
+      <div className="brand-mark">
+        <Mic2 size={19} />
+      </div>
+      <span>
+        Speak<span>Well</span>
+      </span>
+    </div>
+  );
+}
+function viewTitle(v: View) {
+  return (
+    {
+      practice: "Speaking practice",
+      debate: "AI debate arena",
+      history: "Session history",
+      analytics: "Your analytics",
+      profile: "Profile settings",
+    } as any
+  )[v];
+}
+function Auth({
+  onDone,
+  onClose,
+}: {
+  onDone: (name: string) => void;
+  onClose: () => void;
+}) {
+  const [mode, setMode] = useState<"login" | "signup">("signup"),
+    [name, setName] = useState("Jigar"),
+    [email, setEmail] = useState(""),
+    [password, setPassword] = useState("");
+  return (
+    <div className="auth-backdrop">
+      <form
+        className="auth-card"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!email || password.length < 4) return;
+          onDone(name || email.split("@")[0]);
+        }}
+      >
+        <button type="button" className="auth-close" onClick={onClose}>
+          <X />
+        </button>
+        <Brand />
+        <span className="eyebrow">
+          {mode === "signup" ? "CREATE YOUR ACCOUNT" : "WELCOME BACK"}
+        </span>
+        <h2>
+          {mode === "signup"
+            ? "Start finding your voice."
+            : "Pick up your practice."}
+        </h2>
+        {mode === "signup" && (
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full name"
+          />
+        )}
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email address"
+          type="email"
+          required
+        />
+        <input
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password (4+ characters)"
+          type="password"
+          required
+        />
+        <button className="primary" type="submit">
+          {mode === "signup" ? "Create account" : "Log in"}
+          <ArrowRight size={15} />
+        </button>
+        <p className="auth-switch">
+          {mode === "signup" ? "Already have an account?" : "New to SpeakWell?"}{" "}
+          <button
+            type="button"
+            onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+          >
+            {mode === "signup" ? "Log in" : "Create one"}
+          </button>
+        </p>
+      </form>
+    </div>
+  );
+}
+function Landing({ onEnter }: { onEnter: () => void }) {
+  return (
+    <div className="landing">
+      <nav className="landing-nav">
+        <Brand />
+        <div className="landing-links">
+          <a href="#features">How it works</a>
+          <a href="#features">For students</a>
+          <button className="login-btn" onClick={onEnter}>
+            Log in
+          </button>
+          <button className="primary" onClick={onEnter}>
+            Get started <ArrowRight size={15} />
+          </button>
+        </div>
+      </nav>
+      <div className="landing-hero">
+        <div className="landing-copy">
+          <span className="pill purple-pill">THE CONFIDENCE PRACTICE LAB</span>
+          <h2>
+            Build confidence.
+            <br />
+            <em>Speak better.</em>
+            <br />
+            Debate smarter.
+          </h2>
+          <p>
+            SpeakWell gives you a safe space to practice out loud, challenge
+            your thinking, and see yourself improve — one session at a time.
+          </p>
+          <div className="landing-actions">
+            <button className="primary" onClick={onEnter}>
+              Start practicing <ArrowRight size={16} />
+            </button>
+            <button className="watch" onClick={onEnter}>
+              <Play size={15} fill="currentColor" /> See how it works
+            </button>
+          </div>
+          <div className="social-proof">
+            <div className="proof-avatars">
+              <i>AS</i>
+              <i>RP</i>
+              <i>MK</i>
+            </div>
+            <span>
+              <b>Loved by 2,000+ learners</b>
+              <small>Building their voice every day</small>
+            </span>
+          </div>
+        </div>
+        <div className="landing-visual">
+          <div className="visual-ring" />
+          <div className="visual-card">
+            <span className="eyebrow">TODAY'S INSIGHT</span>
+            <h3>
+              Clarity is a<br />
+              <em>superpower.</em>
+            </h3>
+            <div className="visual-wave">
+              {Array.from({ length: 9 }, (_, i) => (
+                <i key={i} />
+              ))}
+            </div>
+            <small>
+              82 overall score <b>↗ 6%</b>
+            </small>
+          </div>
+          <div className="float-tag tag-one">
+            <Sparkles size={15} /> AI feedback
+          </div>
+          <div className="float-tag tag-two">
+            <Mic2 size={15} /> Speak freely
+          </div>
+        </div>
+      </div>
+      <section className="features" id="features">
+        <div>
+          <span className="eyebrow">ONE SPACE TO GROW</span>
+          <h3>Practice what matters.</h3>
+        </div>
+        <div className="feature-grid">
+          <div>
+            <Mic2 />
+            <b>Speaking practice</b>
+            <p>
+              Find your voice with thoughtful prompts and a little room to
+              breathe.
+            </p>
+          </div>
+          <div>
+            <MessagesSquare />
+            <b>Debate arena</b>
+            <p>
+              Sharpen your thinking by seeing every side of the conversation.
+            </p>
+          </div>
+          <div>
+            <BarChart3 />
+            <b>See your progress</b>
+            <p>
+              Turn every attempt into insight with feedback that moves you
+              forward.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+function Stat({
+  label,
+  value,
+  note,
+  icon,
+}: {
+  label: string;
+  value: string;
+  note: string;
+  icon: any;
+}) {
+  return (
+    <div className="stat">
+      <div className="stat-top">
+        <span>{label}</span>
+        <div className="stat-icon">{icon}</div>
+      </div>
+      <strong>{value}</strong>
+      <small>{note}</small>
+    </div>
+  );
+}
+function Dashboard({
+  act,
+  sessions,
+  user,
+}: {
+  act: (v: View) => void;
+  sessions: Session[];
+  user: string;
+}) {
+  const avg = Math.round(
+    sessions.reduce((a, s) => a + s.score, 0) / sessions.length,
+  );
+  return (
+    <div className="content">
+      <section className="hero-card">
+        <div>
+          <span className="pill purple-pill">
+            YOUR MOMENTUM <Flame size={13} />
+          </span>
+          <h2>
+            Small practice.
+            <br />
+            <em>Big confidence.</em>
+          </h2>
+          <p>
+            {user}, you're building a powerful speaking habit. Keep your streak
+            going today.
+          </p>
+          <button className="primary" onClick={() => act("practice")}>
+            Start a practice <ArrowRight size={16} />
+          </button>
+        </div>
+        <div className="hero-art">
+          <div className="orb orb1" />
+          <div className="orb orb2" />
+          <span>✦</span>
+        </div>
+      </section>
+      <div className="stats">
+        <Stat
+          label="Overall score"
+          value={String(avg)}
+          note="Based on saved sessions"
+          icon={<Trophy />}
+        />
+        <Stat
+          label="Practice sessions"
+          value={String(sessions.length)}
+          note="Saved on this device"
+          icon={<Mic2 />}
+        />
+        <Stat
+          label="Current streak"
+          value="5 days"
+          note="Best: 12 days"
+          icon={<Flame />}
+        />
+      </div>
+      <div className="grid-main">
+        <section className="panel chart-panel">
+          <div className="section-title">
+            <div>
+              <span className="eyebrow">PERFORMANCE</span>
+              <h3>Your speaking journey</h3>
+            </div>
+            <span className="trend">↗ active practice</span>
+          </div>
+          <div className="chart">
+            <div className="y-labels">
+              <span>100</span>
+              <span>80</span>
+              <span>60</span>
+              <span>40</span>
+            </div>
+            <svg viewBox="0 0 600 180" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="fill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stopColor="#7066f5" stopOpacity=".2" />
+                  <stop offset="1" stopColor="#7066f5" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M0 137 C45 132 57 141 91 117 S147 126 182 99 S225 110 260 87 S314 93 350 68 S400 75 440 48 S486 74 520 38 S567 50 600 20 L600 180 L0 180Z"
+                fill="url(#fill)"
+              />
+              <path
+                d="M0 137 C45 132 57 141 91 117 S147 126 182 99 S225 110 260 87 S314 93 350 68 S400 75 440 48 S486 74 520 38 S567 50 600 20"
+                fill="none"
+                stroke="#7066f5"
+                strokeWidth="3"
+              />
+            </svg>
+          </div>
+          <div className="x-labels">
+            <span>May 1</span>
+            <span>May 8</span>
+            <span>May 15</span>
+            <span>Today</span>
+          </div>
+        </section>
+        <section className="panel quick-panel">
+          <div className="section-title">
+            <div>
+              <span className="eyebrow">GET STARTED</span>
+              <h3>What will you practice?</h3>
+            </div>
+          </div>
+          <button className="action-card speak" onClick={() => act("practice")}>
+            <div className="action-icon">
+              <Mic2 />
+            </div>
+            <div>
+              <b>Speaking practice</b>
+              <p>Find your voice, one topic at a time.</p>
+            </div>
+            <ArrowRight />
+          </button>
+          <button className="action-card debate" onClick={() => act("debate")}>
+            <div className="action-icon">
+              <MessagesSquare />
+            </div>
+            <div>
+              <b>Debate arena</b>
+              <p>Sharpen your thinking in rounds.</p>
+            </div>
+            <ArrowRight />
+          </button>
+        </section>
+      </div>
+      <section className="panel recent">
+        <div className="section-title">
+          <div>
+            <span className="eyebrow">RECENT ACTIVITY</span>
+            <h3>Pick up where you left off</h3>
+          </div>
+          <button className="text-btn" onClick={() => act("history")}>
+            View all <ArrowRight size={14} />
+          </button>
+        </div>
+        <div className="session-list">
+          {sessions.slice(0, 3).map((s) => (
+            <Session s={s} key={s.id} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+function Session({ s }: { s: Session }) {
+  return (
+    <div className="session">
+      <div className={"session-type " + s.color}>
+        {s.type === "Speaking" ? (
+          <Mic2 size={17} />
+        ) : (
+          <MessagesSquare size={17} />
+        )}
+      </div>
+      <div className="session-info">
+        <b>{s.topic}</b>
+        <small>
+          {s.date} · {s.duration}
+        </small>
+      </div>
+      <strong className="score">{s.score}</strong>
+      <span className="score-label">score</span>
+      <ArrowRight className="row-arrow" size={16} />
+    </div>
+  );
+}
+function Practice({
+  topic,
+  setTopic,
+  notify,
+  onSave,
+}: {
+  topic: string;
+  setTopic: (v: string) => void;
+  notify: (v: string) => void;
+  onSave: (s: Session) => void;
+}) {
+  const [started, setStarted] = useState(false),
+    [text, setText] = useState(""),
+    [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    if (!started) return;
+    const id = window.setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, [started]);
+  const finish = () => {
+    if (!text.trim()) {
+      notify("Add a transcript before submitting");
+      return;
+    }
+    const score = Math.min(
+      98,
+      68 + Math.min(25, Math.round(text.trim().split(/\s+/).length / 5)),
+    );
+    onSave({
+      id: crypto.randomUUID(),
+      type: "Speaking",
+      topic: topic || "Open speaking practice",
+      date: now(),
+      score,
+      duration: `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`,
+      color: "purple",
+      transcript: text,
+    });
+    setStarted(false);
+    setText("");
+    setSeconds(0);
+    notify(`Session saved — score ${score}`);
+  };
+  return (
+    <div className="content practice-layout">
+      <section className="panel practice-card">
+        <div className="practice-top">
+          <div>
+            <span className="eyebrow">SPEAKING LAB · NO AI REQUIRED</span>
+            <h2>Find your voice.</h2>
+            <p>
+              Choose a topic, start the timer, and type what you would say. Your
+              practice is saved locally.
+            </p>
+          </div>
+          <div className="practice-number">01</div>
+        </div>
+        <div className="filters">
+          <label>
+            Category
+            <select>
+              <option>Technology</option>
+              <option>Education</option>
+              <option>Society</option>
+              <option>Environment</option>
+              <option>Career</option>
+            </select>
+          </label>
+          <label>
+            Difficulty
+            <select>
+              <option>Intermediate</option>
+              <option>Beginner</option>
+              <option>Advanced</option>
+            </select>
+          </label>
+          <button
+            className="secondary"
+            onClick={() => {
+              setTopic(
+                "Should artificial intelligence replace traditional classroom teaching?",
+              );
+              notify("Topic ready for your practice");
+            }}
+          >
+            <Sparkles size={16} /> Use sample topic
+          </button>
+        </div>
+        {topic && (
+          <div className="topic-box">
+            <span className="topic-label">YOUR TOPIC</span>
+            <h3>{topic}</h3>
+            <span className="difficulty">INTERMEDIATE</span>
+          </div>
+        )}
+        <div className="record-box">
+          {!started ? (
+            <>
+              <div className="mic-circle">
+                <Mic2 />
+              </div>
+              <h3>Ready when you are</h3>
+              <p>
+                This phase uses typed transcript input; microphone integration
+                is intentionally left out.
+              </p>
+              <button
+                className="primary"
+                onClick={() => {
+                  if (!topic)
+                    setTopic(
+                      "Is technology making us more connected or more alone?",
+                    );
+                  setStarted(true);
+                }}
+              >
+                <Play size={16} fill="currentColor" /> Start timer
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="recording">
+                <span />
+                Practice timer{" "}
+                <b>
+                  {String(Math.floor(seconds / 60)).padStart(2, "0")}:
+                  {String(seconds % 60).padStart(2, "0")}
+                </b>
+              </div>
+              <textarea
+                autoFocus
+                placeholder="Type the response you would speak..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+              <small className="word-counter">
+                {text.trim() ? text.trim().split(/\s+/).length : 0} words
+              </small>
+              <button className="primary" onClick={finish}>
+                Stop & save session <ArrowRight size={16} />
+              </button>
+            </>
+          )}
+        </div>
+      </section>
+      <aside className="practice-aside">
+        <div className="tip-card">
+          <Sparkles size={18} />
+          <h3>A little tip</h3>
+          <p>
+            Don't aim for perfect. Aim for clear. Take a breath before you begin
+            and let your ideas land.
+          </p>
+        </div>
+        <div className="panel mini-panel">
+          <span className="eyebrow">THIS SESSION</span>
+          <div>
+            <b>2 min</b>
+            <small>suggested duration</small>
+          </div>
+          <div>
+            <b>∞</b>
+            <small>retakes available</small>
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+function Debate({
+  notify,
+  onSave,
+}: {
+  notify: (v: string) => void;
+  onSave: (s: Session) => void;
+}) {
+  const [position, setPosition] = useState<"FOR" | "AGAINST" | null>(null),
+    [round, setRound] = useState(1),
+    [response, setResponse] = useState("");
+  const topic = "Should AI be allowed to replace human teachers?";
+  const next = () => {
+    if (!response.trim()) {
+      notify("Write a response before continuing");
+      return;
+    }
+    if (round < 3) {
+      setRound(round + 1);
+      setResponse("");
+      notify("Round advanced — develop your next point");
+    } else {
+      onSave({
+        id: crypto.randomUUID(),
+        type: "Debate",
+        topic,
+        date: now(),
+        score: Math.min(95, 70 + Math.round(response.length / 20)),
+        duration: "03:00",
+        color: "orange",
+        transcript: response,
+      });
+      notify("Debate saved — evaluation complete");
+      setPosition(null);
+      setRound(1);
+      setResponse("");
+    }
+  };
+  return (
+    <div className="content debate-layout">
+      <section className="panel debate-main">
+        <div className="debate-header">
+          <div>
+            <span className="eyebrow">DEBATE ARENA · ROUND {round} OF 3</span>
+            <h2>{topic}</h2>
+          </div>
+          <div className="rounds">
+            <i className={round >= 1 ? "on" : ""} />
+            <i className={round >= 2 ? "on" : ""} />
+            <i className={round >= 3 ? "on" : ""} />
+          </div>
+        </div>
+        {!position ? (
+          <div className="position-select">
+            <h3>Choose your position</h3>
+            <p>
+              There are no wrong answers. Choose the side you want to defend.
+            </p>
+            <div>
+              <button onClick={() => setPosition("FOR")}>
+                <span>FOR</span>
+                <b>AI can expand access and personalize learning.</b>
+                <ArrowRight />
+              </button>
+              <button onClick={() => setPosition("AGAINST")}>
+                <span>AGAINST</span>
+                <b>Human connection is at the heart of teaching.</b>
+                <ArrowRight />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="position-pill">
+              YOU ARE ARGUING <b>{position}</b>
+            </div>
+            <div className="argument ai">
+              <div className="bubble-icon">
+                <Sparkles />
+              </div>
+              <div>
+                <span>OPENING PROMPT</span>
+                <p>
+                  Make your strongest case in one clear paragraph. Support your
+                  position with a practical example.
+                </p>
+              </div>
+            </div>
+            <div className="argument student">
+              <div className="bubble-icon">
+                <UserRound />
+              </div>
+              <div>
+                <span>YOUR RESPONSE</span>
+                <textarea
+                  placeholder="Type your argument..."
+                  value={response}
+                  onChange={(e) => setResponse(e.target.value)}
+                />
+                <button className="secondary" onClick={next}>
+                  <MessagesSquare size={16} />{" "}
+                  {round < 3 ? "Submit response" : "End debate & save"}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+      <aside className="debate-side">
+        <div className="tip-card dark-tip">
+          <MessagesSquare size={18} />
+          <h3>Debate coach</h3>
+          <p>
+            Make one clear claim, support it with an example, then anticipate
+            the other side.
+          </p>
+        </div>
+        <div className="panel score-card">
+          <span className="eyebrow">DEBATE ENERGY</span>
+          <strong>
+            {position
+              ? `Round ${round} is live.`
+              : "Choose a position to begin."}
+          </strong>
+          <div className="energy">
+            <span style={{ width: `${position ? round * 33 : 0}%` }} />
+          </div>
+          <small>
+            Three short rounds. Your work is saved after the final response.
+          </small>
+        </div>
+      </aside>
+    </div>
+  );
+}
+function History({ sessions }: { sessions: Session[] }) {
+  return (
+    <div className="content">
+      <div className="history-hero">
+        <div>
+          <span className="eyebrow">YOUR LIBRARY</span>
+          <h2>
+            Every attempt
+            <br />
+            <em>counts.</em>
+          </h2>
+        </div>
+        <div className="history-count">
+          <strong>{sessions.length}</strong>
+          <span>total sessions</span>
+        </div>
+      </div>
+      <section className="panel recent history-panel">
+        <div className="section-title">
+          <h3>All sessions</h3>
+          <span className="trend">Saved locally on this device</span>
+        </div>
+        <div className="session-list">
+          {sessions.map((s) => (
+            <Session s={s} key={s.id} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+function Analytics({ sessions }: { sessions: Session[] }) {
+  const avg = Math.round(
+      sessions.reduce((a, s) => a + s.score, 0) / sessions.length,
+    ),
+    best = Math.max(...sessions.map((s) => s.score));
+  return (
+    <div className="content">
+      <div className="analytics-grid">
+        <Stat
+          label="Average score"
+          value={String(avg)}
+          note="Across saved sessions"
+          icon={<BarChart3 />}
+        />
+        <Stat
+          label="Best score"
+          value={String(best)}
+          note="Your personal best"
+          icon={<Trophy />}
+        />
+        <Stat
+          label="Total sessions"
+          value={String(sessions.length)}
+          note="Practice + debate"
+          icon={<Clock3 />}
+        />
+      </div>
+      <section className="panel chart-panel big-chart">
+        <div className="section-title">
+          <div>
+            <span className="eyebrow">SCORE TREND</span>
+            <h3>You're getting stronger</h3>
+          </div>
+          <span className="trend">↗ live from your sessions</span>
+        </div>
+        <div className="chart">
+          <div className="y-labels">
+            <span>100</span>
+            <span>80</span>
+            <span>60</span>
+            <span>40</span>
+          </div>
+          <svg viewBox="0 0 800 210" preserveAspectRatio="none">
+            <path
+              d="M0 160 C65 154 91 173 137 138 S213 149 260 117 S330 126 385 110 S450 119 510 83 S570 94 625 67 S702 71 800 28"
+              fill="none"
+              stroke="#7066f5"
+              strokeWidth="4"
+            />
+            <path
+              d="M0 160 C65 154 91 173 137 138 S213 149 260 117 S330 126 385 110 S450 119 510 83 S570 94 625 67 S702 71 800 28 L800 210 L0 210Z"
+              fill="url(#fill)"
+            />
+          </svg>
+        </div>
+        <div className="x-labels">
+          <span>Start</span>
+          <span>Practice</span>
+          <span>Recent</span>
+          <span>Today</span>
+        </div>
+      </section>
+    </div>
+  );
+}
+function Profile({ user }: { user: string }) {
+  return (
+    <div className="content">
+      <section className="panel profile-card">
+        <div className="profile-avatar">{user.slice(0, 2).toUpperCase()}</div>
+        <h2>{user}</h2>
+        <p>Building confidence, one conversation at a time.</p>
+        <button className="secondary">
+          <UserRound size={16} /> Profile is ready
+        </button>
+      </section>
+    </div>
+  );
+}
+createRoot(document.getElementById("root")!).render(<App />);
