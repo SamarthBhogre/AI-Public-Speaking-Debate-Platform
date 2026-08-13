@@ -1,0 +1,7 @@
+{
+  "name": "speakwell-review-1",
+  "private": true,
+  "scripts": {"dev": "vite", "build": "vite build", "server": "node backend/server.js"},
+  "dependencies": {"@vitejs/plugin-react":"latest","vite":"latest","typescript":"latest","react":"latest","react-dom":"latest","lucide-react":"latest","express":"latest","cors":"latest","dotenv":"latest","pg":"latest","bcryptjs":"latest","jsonwebtoken":"latest"},
+  "devDependencies": {}
+}

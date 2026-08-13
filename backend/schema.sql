@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(120) NOT NULL, email VARCHAR(180) UNIQUE NOT NULL, password_hash TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS speaking_sessions (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id) ON DELETE CASCADE, topic TEXT NOT NULL, transcript TEXT, duration INT DEFAULT 0, word_count INT DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS speaking_reports (id SERIAL PRIMARY KEY, session_id INT UNIQUE REFERENCES speaking_sessions(id) ON DELETE CASCADE, overall_score INT, fluency INT, clarity INT, vocabulary INT, content_relevance INT, strengths JSONB, improvements JSONB, feedback TEXT);
+CREATE TABLE IF NOT EXISTS debate_sessions (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id) ON DELETE CASCADE, topic TEXT NOT NULL, position VARCHAR(10), transcript JSONB, score INT, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE INDEX IF NOT EXISTS speaking_user_idx ON speaking_sessions(user_id, created_at DESC); CREATE INDEX IF NOT EXISTS debate_user_idx ON debate_sessions(user_id, created_at DESC);
