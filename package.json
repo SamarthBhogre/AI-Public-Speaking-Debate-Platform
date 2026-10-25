@@ -1,7 +1,32 @@
 {
   "name": "speakwell-review-1",
   "private": true,
-  "scripts": {"dev": "vite", "build": "vite build", "server": "node backend/server.js"},
-  "dependencies": {"@vitejs/plugin-react":"latest","vite":"latest","typescript":"latest","react":"latest","react-dom":"latest","lucide-react":"latest","express":"latest","cors":"latest","dotenv":"latest","pg":"latest","bcryptjs":"latest","jsonwebtoken":"latest"},
-  "devDependencies": {}
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "tsc --noEmit && vite build",
+    "install:backend": "npm --prefix backend install",
+    "build:backend": "npm --prefix backend run build",
+    "server": "npm --prefix backend run dev",
+    "start:server": "npm --prefix backend start"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "bcryptjs": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "lucide-react": "latest",
+    "pg": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "recharts": "^3.10.1",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0"
+  }
 }

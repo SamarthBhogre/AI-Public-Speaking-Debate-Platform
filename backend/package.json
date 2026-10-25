@@ -1,0 +1,31 @@
+{
+  "name": "speakwell-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "*",
+    "cookie-parser": "*",
+    "cors": "*",
+    "dotenv": "*",
+    "express": "*",
+    "jsonwebtoken": "*",
+    "pg": "*",
+    "zod": "*"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "*",
+    "@types/cookie-parser": "*",
+    "@types/cors": "*",
+    "@types/express": "*",
+    "@types/jsonwebtoken": "*",
+    "@types/node": "*",
+    "@types/pg": "*",
+    "tsx": "*",
+    "typescript": "*"
+  }
+}

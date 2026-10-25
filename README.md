@@ -1,182 +1,158 @@
 # SpeakWell
 
-SpeakWell is an AI-inspired public speaking and debate practice platform for students.
+SpeakWell is a student practice platform for public speaking and structured debate. Students can practice with a typed response or browser speech recognition, receive a structured evaluation, save reports, and review progress.
 
-It helps learners practice speaking topics, work through debate rounds, review saved sessions, and track performance over time.
+## Current functionality
 
-## Review 1 status
+- Student signup and login with bcrypt password hashing
+- JWT authentication in an HTTP-only cookie
+- PostgreSQL-backed users, sessions, rounds, reports, history, and analytics
+- Speaking topics by category and difficulty
+- Speaking timer, transcript editing, word count, and Web Speech API where supported
+- Three-round debate sessions with typed or spoken responses
+- Configurable server-side OpenRouter service with a local fallback
+- Speaking and debate reports
+- Database-driven history and analytics
+- Responsive SpeakWell interface and dark mode
 
-This version focuses on a functional frontend foundation and an easy-to-demonstrate student workflow.
-
-Implemented:
-
-- Responsive landing page
-- Signup and login modal
-- Local login persistence
-- Student dashboard
-- Speaking practice workflow
-- Practice timer
-- Typed transcript input
-- Word counter
-- Local session saving
-- Multi-round debate workflow
-- Debate response input
-- Session history
-- Dynamic analytics
-- Profile view
-- Toast notifications
-- Light/dark visual mode
-- Express API fallback endpoints
-- PostgreSQL schema draft
-
-Intentionally left out for this phase:
-
-- Web Speech API
-- External AI services
-- Live PostgreSQL persistence
-- JWT authentication
-- Faculty and administrator roles
-- Video, pronunciation, emotion, and audio analysis
+Speech recognition depends on browser support and microphone permission. Typed transcript entry remains available as a fallback. AI requests are made by the backend only; when no API key is configured or a provider request fails, the fallback service keeps the workflow available.
 
 ## Technology
 
-- React
-- TypeScript
-- Vite
-- CSS
-- Lucide React
-- Node.js
-- Express
-- PostgreSQL schema preparation
+- Frontend: React, TypeScript, Vite, CSS, Lucide React, Recharts
+- Backend: Node.js, Express, TypeScript
+- Database: PostgreSQL
+- Validation: Zod
+- Password hashing: bcryptjs
+- Authentication: JWT in HTTP-only cookie
 
-## Getting started
-
-### Requirements
+## Requirements
 
 - Node.js 18 or newer
 - npm
+- PostgreSQL 13 or newer
 
-### Install dependencies
+## Setup
 
-```bash
-npm install
-```
+Install frontend dependencies from the project root with `npm install`.
 
-### Start the frontend
+Install backend dependencies with `npm run install:backend`.
 
-```bash
-npm run dev
-```
+Create a PostgreSQL database named `speakwell`. Copy `.env.example` to `.env`, then set `DATABASE_URL` and a private `JWT_SECRET` of at least eight characters.
 
-Vite will provide a local development URL, normally:
+Example environment values:
 
-```text
-http://localhost:5173
-```
+- `PORT=4000`
+- `DATABASE_URL=postgresql://postgres:your-password@localhost:5432/speakwell`
+- `JWT_SECRET=use-a-long-random-secret`
+- `CLIENT_URL=http://localhost:5173`
+- `OPENROUTER_API_KEY=`
+- `OPENROUTER_SITE_URL=http://localhost:5173` (optional OpenRouter attribution)
+- `OPENROUTER_APP_NAME=SpeakWell` (optional OpenRouter attribution)
+- `AI_MODEL=`
 
-### Start the backend fallback API
+The backend applies pending migrations at startup. Migration files are in `backend/src/database/migrations`.
 
-In a separate terminal:
+## Run locally
 
-```bash
-npm run server
-```
+Start the API in one terminal using `npm run server`.
 
-The API runs on:
+Start the frontend in another terminal using `npm run dev`.
 
-```text
-http://localhost:4000
-```
+The frontend runs at `http://localhost:5173` and proxies `/api` requests to the backend at `http://localhost:4000`.
 
-Available demo endpoints:
+Set `OPENROUTER_API_KEY` and `AI_MODEL` to an OpenRouter model slug (for example, one listed in your OpenRouter account) to enable AI features. The key is used only by the backend and must never be placed in frontend environment variables. With no provider key/model—or if an AI request fails—SpeakWell uses its built-in fallback service.
+
+## Build
+
+Run `npm run build` to type-check and build the frontend, then type-check and build the backend.
+
+## API endpoints
+
+### Authentication
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+
+### Speaking
+
+- `POST /api/speaking/topic`
+- `POST /api/speaking/session`
+- `POST /api/speaking/evaluate`
+- `GET /api/speaking/history`
+- `GET /api/speaking/:id`
+
+Creating a speaking session also evaluates it and stores the report.
+
+### Debate
+
+- `POST /api/debate/topic`
+- `POST /api/debate/session`
+- `POST /api/debate/respond`
+- `POST /api/debate/evaluate`
+- `GET /api/debate/history`
+- `GET /api/debate/:id`
+
+### Analytics
+
+- `GET /api/analytics/overview`
+- `GET /api/analytics/speaking`
+- `GET /api/analytics/debate`
+- `GET /api/analytics/streak`
+
+### Health
 
 - `GET /api/health`
-- `POST /api/speaking/topic`
-- `POST /api/speaking/evaluate`
-- `POST /api/debate/respond`
 
-## Available scripts
+Protected routes require the authentication cookie. Session queries are scoped to the authenticated user's ID.
 
-```bash
-npm run dev       # Start the Vite development server
-npm run build     # Create a production build
-npm run server    # Start the Express fallback API
-```
+## Database model
+
+Migrations create `users`, `speaking_sessions`, `speaking_reports`, `debate_sessions`, `debate_rounds`, and `debate_reports`.
+
+The consolidated reference schema is in `backend/schema.sql`. Ordered migration files are the source used by the application at startup.
 
 ## Demo flow
 
-1. Open the landing page.
-2. Select **Get started**.
-3. Create a local student account.
-4. Open **Practice**.
-5. Select **Use sample topic** or start with the default topic.
-6. Start the timer and type a speaking response.
-7. Save the session.
-8. Open **History** to see the saved session.
-9. Open **Analytics** to see updated scores.
-10. Open **AI Debate**.
-11. Choose **FOR** or **AGAINST**.
-12. Complete three typed debate rounds.
-13. Confirm that the debate appears in history and analytics.
+1. Create an account and sign in.
+2. Generate a speaking topic.
+3. Start the timer and speak if browser recognition is supported, or type a response.
+4. Submit the session and view its evaluation.
+5. Complete three debate rounds.
+6. View the debate evaluation.
+7. Open history and analytics to see database-backed results.
 
 ## Project structure
 
-```text
+```
 .
 ├── backend/
-│   ├── schema.sql       # PostgreSQL tables and indexes
-│   └── server.js        # Express fallback API
-├── src/
-│   ├── main.tsx         # React application and screens
-│   └── styles.css       # Application styling
-├── .env.example         # Environment variable reference
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── database/migrations/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── validators/
+│   ├── schema.sql
+│   └── package.json
+└── src/
+    ├── components/
+    ├── hooks/
+    ├── lib/
+    ├── pages/
+    ├── services/
+    ├── types/
+    └── styles.css
 ```
 
-## Local data behavior
+## Current scope limits
 
-The current frontend stores the signed-in user and practice sessions in browser `localStorage`.
-
-This makes the demo interactive without requiring database setup. Clearing browser storage resets the local account and saved sessions.
-
-## PostgreSQL preparation
-
-The schema is available at [`backend/schema.sql`](backend/schema.sql).
-
-It defines the initial relational model for:
-
-- Users
-- Speaking sessions
-- Speaking reports
-- Debate sessions
-
-The PostgreSQL connection and authenticated persistence are planned for the next backend phase.
-
-## Environment variables
-
-Copy `.env.example` to `.env` when configuring the backend:
-
-```env
-PORT=4000
-DATABASE_URL=postgresql://postgres:password@localhost:5432/speakwell
-JWT_SECRET=change-me
-AI_API_KEY=
-AI_MODEL=
-```
-
-The current phase does not require an AI key or database connection to run the frontend demo.
-
-## Verification
-
-Run the production build before submitting changes:
-
-```bash
-npm run build
-```
-
-## License
-
-This project is an academic college project for Review 1 development and demonstration.
+- Student accounts only; faculty and admin workflows are not included.
+- Speech recognition uses the browser Web Speech API and varies by browser.
+- Fallback evaluations provide basic heuristic feedback, not expert linguistic assessment.
+- OpenRouter integration is optional and requires a server-side API key.
+- The platform does not provide pronunciation, emotion, video, or advanced audio analysis.
