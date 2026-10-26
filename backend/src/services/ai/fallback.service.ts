@@ -14,59 +14,27 @@ import {
 } from '../../types';
 
 const SPEAKING_TOPICS: SpeakingTopic[] = [
-  {
-    topic: 'Should artificial intelligence replace traditional classroom teaching?',
-    category: 'Technology',
-    difficulty: 'Intermediate',
-  },
-  {
-    topic: 'Is technology making us more connected or more alone?',
-    category: 'Society',
-    difficulty: 'Intermediate',
-  },
-  {
-    topic: 'Can sustainable cities become the new normal?',
-    category: 'Environment',
-    difficulty: 'Advanced',
-  },
-  {
-    topic: 'What role should social media play in politics?',
-    category: 'Society',
-    difficulty: 'Advanced',
-  },
-  {
-    topic: 'Is remote work better than office work for productivity?',
-    category: 'Career',
-    difficulty: 'Beginner',
-  },
-  {
-    topic: 'Should college education be free for everyone?',
-    category: 'Education',
-    difficulty: 'Intermediate',
-  },
-  {
-    topic: 'How can individuals reduce their carbon footprint?',
-    category: 'Environment',
-    difficulty: 'Beginner',
-  },
+  { topic: 'Should cities make public transportation free?', category: 'Society', difficulty: 'Intermediate' },
+  { topic: 'Does social media bring people closer together?', category: 'Technology', difficulty: 'Intermediate' },
+  { topic: 'What can communities do to reduce food waste?', category: 'Environment', difficulty: 'Advanced' },
+  { topic: 'Should people be encouraged to shop at local businesses?', category: 'Society', difficulty: 'Advanced' },
+  { topic: 'Is a four-day workweek a good idea?', category: 'Career', difficulty: 'Beginner' },
+  { topic: 'Should cities create more parks and public spaces?', category: 'Society', difficulty: 'Intermediate' },
+  { topic: 'How can people build healthier daily habits?', category: 'Health', difficulty: 'Beginner' },
+  { topic: 'Should people repair items instead of replacing them?', category: 'Environment', difficulty: 'Intermediate' },
+  { topic: 'What makes a neighborhood a good place to live?', category: 'Society', difficulty: 'Beginner' },
+  { topic: 'Should employers offer flexible working hours?', category: 'Career', difficulty: 'Intermediate' },
+  { topic: 'How can people make online spaces more respectful?', category: 'Technology', difficulty: 'Advanced' },
+  { topic: 'Should cities prioritize walking and cycling over cars?', category: 'Environment', difficulty: 'Advanced' },
+  { topic: 'What makes a hobby worth pursuing?', category: 'Society', difficulty: 'Beginner' },
 ];
 
 const DEBATE_TOPICS: DebateTopic[] = [
-  {
-    topic: 'Should AI be allowed to replace human teachers?',
-    for_stance: 'AI can personalize learning and expand access globally.',
-    against_stance: 'Human connection and mentorship are irreplaceable in education.',
-  },
-  {
-    topic: 'Is remote learning better than classroom learning?',
-    for_stance: 'Remote learning offers flexibility and access to global resources.',
-    against_stance: 'In-person learning builds social skills and discipline.',
-  },
-  {
-    topic: 'Should social media platforms be regulated by governments?',
-    for_stance: 'Regulation protects users from misinformation and harm.',
-    against_stance: 'Regulation threatens free speech and innovation.',
-  },
+  { topic: 'Should public transportation be free?', for_stance: 'Free transit can improve access to jobs and reduce traffic.', against_stance: 'Fares help fund reliable service and transit improvements.' },
+  { topic: 'Should cities restrict cars in busy downtown areas?', for_stance: 'Restrictions can reduce pollution and make streets safer for people.', against_stance: 'Restrictions can make travel harder for residents and local businesses.' },
+  { topic: 'Should employers adopt a four-day workweek?', for_stance: 'A shorter week can improve well-being without reducing productivity.', against_stance: 'A shorter week may raise costs or reduce availability for customers.' },
+  { topic: 'Should grocery stores donate unsold food instead of throwing it away?', for_stance: 'Donations reduce waste and help people who need food.', against_stance: 'Safe collection and delivery can be costly and difficult to coordinate.' },
+  { topic: 'Should cities invest more in parks than in parking spaces?', for_stance: 'Parks support health, community life, and cleaner urban environments.', against_stance: 'Parking is needed by residents and businesses where transit is limited.' },
 ];
 
 const AI_COUNTERARGUMENTS = [

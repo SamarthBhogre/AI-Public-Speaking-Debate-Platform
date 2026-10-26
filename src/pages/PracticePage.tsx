@@ -11,14 +11,14 @@ interface PracticePageProps {
   onComplete: (sessionId: string) => void;
 }
 
-const CATEGORIES = ['Technology', 'Education', 'Society', 'Environment', 'Career'];
+const CATEGORIES = ['General', 'Technology', 'Education', 'Society', 'Environment', 'Career', 'Health'];
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'];
 
 export function PracticePage({ user: _user, notify, onComplete }: PracticePageProps) {
-  const [category, setCategory] = useState('Technology');
+  const [category, setCategory] = useState('General');
   const [difficulty, setDifficulty] = useState('Intermediate');
   const [topic, setTopic] = useState('');
-  const [topicCategory, setTopicCategory] = useState('Technology');
+  const [topicCategory, setTopicCategory] = useState('General');
   const [topicDifficulty, setTopicDifficulty] = useState('Intermediate');
   const [loadingTopic, setLoadingTopic] = useState(false);
   const [started, setStarted] = useState(false);
@@ -65,7 +65,7 @@ export function PracticePage({ user: _user, notify, onComplete }: PracticePagePr
       notify('Topic ready for your practice');
     } catch {
       notify('Could not fetch topic. Using a sample.');
-      setTopic('Is technology making us more connected or more alone?');
+      setTopic('What is one change that would improve everyday life?');
       setTopicCategory(category);
       setTopicDifficulty(difficulty);
     } finally {
@@ -75,7 +75,7 @@ export function PracticePage({ user: _user, notify, onComplete }: PracticePagePr
 
   const handleStart = () => {
     if (!topic) {
-      setTopic('Is technology making us more connected or more alone?');
+      setTopic('What is one change that would improve everyday life?');
       setTopicCategory(category);
       setTopicDifficulty(difficulty);
     }

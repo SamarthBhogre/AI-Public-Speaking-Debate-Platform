@@ -70,7 +70,7 @@ export abstract class BaseAIService implements AIService {
     input: GenerateSpeakingTopicInput,
   ): Promise<SpeakingTopic> {
     try {
-      const prompt = `Generate a single public speaking practice topic as JSON.
+      const prompt = `Generate a single public speaking practice topic as JSON. Choose a varied, relatable subject from everyday life, culture, health, work, community, environment, technology, or society. Avoid making topics about school, students, or education unless the requested category is Education. Do not repeatedly favor one subject area.
 ${input.category ? `Category: ${input.category}` : 'Pick any interesting category.'}
 ${input.difficulty ? `Difficulty: ${input.difficulty}` : 'Use Intermediate difficulty.'}
 
@@ -90,7 +90,7 @@ Respond ONLY with valid JSON in this exact format (no other text):
 
   async generateDebateTopic(): Promise<DebateTopic> {
     try {
-      const prompt = `Generate a debate topic for a student practice debate as JSON.
+      const prompt = `Generate a debate topic for a general audience practice debate as JSON. Choose a varied, relatable subject such as everyday life, culture, health, work, community, environment, technology, or society. Avoid school, students, and education topics unless specifically requested. Do not repeatedly favor one subject area.
 
 Respond ONLY with valid JSON in this exact format (no other text):
 {
